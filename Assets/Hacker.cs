@@ -8,12 +8,30 @@ public class Hacker : MonoBehaviour
     int level;
     enum Screen { MainMenu, Password, Win };
     Screen currentScreen;
+    string password;
 
     // Start is called before the first frame update
     void Start()
     {
         ShowMainMenu();
     }
+
+    // OnUserInput is called whenever the user hits return
+    void OnUserInput(string input)
+	{
+        if (input == "menu")
+        {
+            ShowMainMenu();
+        }
+        else if (currentScreen == Screen.MainMenu)
+        {
+            RunMainMenu(input);
+        }
+        else if (currentScreen == Screen.Password)
+        {
+            CheckPassword(input);
+        }
+	}
 
     // Clear terminal and show main menu
     void ShowMainMenu()
@@ -29,34 +47,24 @@ public class Hacker : MonoBehaviour
         Terminal.WriteLine("Enter your selection:");
     }
 
-    // OnUserInput is called whenever the user hits return
-    void OnUserInput(string input)
-	{
-        if (input == "menu")
-        {
-            ShowMainMenu();
-        }
-        else if (currentScreen == Screen.MainMenu)
-        {
-            RunMainMenu(input);
-        }
-	}
-
     void RunMainMenu(string input)
     {
         if (input == "1")
         {
             level = 1;
+            password = "Memphis";
             StartGame();
         }
         else if (input == "2")
         {
             level = 2;
+            password = "Dylan";
             StartGame();
         }
         else if (input == "3")
         {
             level = 3;
+            password = "Hamachi";
             StartGame();
         }
         else
@@ -70,6 +78,23 @@ public class Hacker : MonoBehaviour
         currentScreen = Screen.Password;
         Terminal.WriteLine("You have chosen level " + level);
         Terminal.WriteLine("Please enter your password:");
+    }
+
+    void CheckPassword(string input)
+    {
+        if (input == password)
+        {
+            WinScreen();
+        }
+        else
+        {
+            Terminal.WriteLine("Incorrect, please try again");
+        }
+    }
+
+    void WinScreen() {
+        currentScreen = Screen.Win;
+        Terminal.WriteLine("Congrats, you have hacked in!");
     }
 
     // Update is called once per frame
