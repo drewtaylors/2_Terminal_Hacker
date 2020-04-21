@@ -1,9 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Hacker : MonoBehaviour
 {
+    // Game configuration data
+    string[] level1Passwords = { "books", "aisle", "shelf", "password", "font", "borrow" };
+    string[] level2Passwords = { "police", "rifle", "prison", "arrested", "criminal", "lawyer" };
+    string[] level3Passwords = { "astronaut", "spaceship", "astrology", "asteroid", "countdown", "nuclear" };
+
     // Game state
     int level;
     enum Screen { MainMenu, Password, Win };
@@ -22,6 +25,11 @@ public class Hacker : MonoBehaviour
         if (input == "menu")
         {
             ShowMainMenu();
+        }
+        else if (input == "close" || input == "quit")
+        {
+            Terminal.WriteLine("If on the web close the tab");
+            Application.Quit();
         }
         else if (currentScreen == Screen.MainMenu)
         {
@@ -43,29 +51,18 @@ public class Hacker : MonoBehaviour
         Terminal.WriteLine("Press 1 for the local library");
         Terminal.WriteLine("Press 2 for the police station");
         Terminal.WriteLine("Press 3 for NASA");
+        Terminal.WriteLine("Type 'menu' at any time to return here");
         Terminal.WriteLine("");
         Terminal.WriteLine("Enter your selection:");
     }
 
     void RunMainMenu(string input)
     {
-        if (input == "1")
+        bool isValidLevelNumber = (input == "1" || input == "2" || input == "3");
+        if (isValidLevelNumber)
         {
-            level = 1;
-            password = "Memphis";
-            StartGame();
-        }
-        else if (input == "2")
-        {
-            level = 2;
-            password = "Dylan";
-            StartGame();
-        }
-        else if (input == "3")
-        {
-            level = 3;
-            password = "Hamachi";
-            StartGame();
+            level = int.Parse(input);
+            AskForPassword();
         }
         else
         {
@@ -73,28 +70,91 @@ public class Hacker : MonoBehaviour
         }
     }
 
-    void StartGame()
+    void AskForPassword()
     {
         currentScreen = Screen.Password;
-        Terminal.WriteLine("You have chosen level " + level);
-        Terminal.WriteLine("Please enter your password:");
+        Terminal.ClearScreen();
+        SetRandomPassword();
+        Terminal.WriteLine("Enter your password, hint: " + password.Anagram());
+    }
+
+    void SetRandomPassword ()
+    {
+        switch(level)
+        {
+            case 1:
+                password = level1Passwords[Random.Range(0, level1Passwords.Length)];
+                break;
+            case 2:
+                password = level2Passwords[Random.Range(0, level2Passwords.Length)];
+                break;
+            case 3:
+                password = level3Passwords[Random.Range(0, level3Passwords.Length)];
+                break;
+            default:
+                Debug.LogError("Invalid level number");
+                break;
+        }
     }
 
     void CheckPassword(string input)
     {
         if (input == password)
         {
-            WinScreen();
+            DisplayWinScreen();
         }
         else
         {
-            Terminal.WriteLine("Incorrect, please try again");
+            AskForPassword();
         }
     }
 
-    void WinScreen() {
+    void DisplayWinScreen()
+    {
         currentScreen = Screen.Win;
-        Terminal.WriteLine("Congrats, you have hacked in!");
+        Terminal.ClearScreen();
+        ShowLevelReward();
+    }
+
+    void ShowLevelReward()
+    {
+        switch (level)
+        {
+            case 1:
+                Terminal.WriteLine("Have a book...");
+                Terminal.WriteLine(@"
+    _______
+   /      //
+  /      //
+ /_____ //
+(______(/           
+"
+                );
+                break;
+            case 2:
+                Terminal.WriteLine("You got the prison key!");
+                Terminal.WriteLine("Play again for a greater challenge.");
+                Terminal.WriteLine(@"
+ __
+/0 \_______
+\__/-=' = '         
+"
+                );
+                break;
+            case 3:
+                Terminal.WriteLine(@"
+ _ __   __ _ ___  __ _
+| '_ \ / _` / __|/ _` |
+| | | | (_| \__ \ (_| |
+|_| |_|\__,_|___)\__,_|
+"
+                );
+                Terminal.WriteLine("Welcome to NASA's internal system!");
+                break;
+            default:
+                Debug.LogError("Invalid level reached");
+                break;
+        }
     }
 
     // Update is called once per frame
